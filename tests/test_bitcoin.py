@@ -34,11 +34,6 @@ def test_get_random(bitcoin_app):
     assert len(response) == 248
 
 
-from ledgerwallet.utils import enable_apdu_log
-
-enable_apdu_log()
-
-
 @pytest.mark.parametrize("display_address", (True, False))
 def test_get_wallet_public_key_legacy(bitcoin_test_app, display_address):
     cmd = get_wallet_public_key(display_address=display_address, scheme=Scheme.P2PKH)(
@@ -56,9 +51,6 @@ def test_get_wallet_public_key_legacy(bitcoin_test_app, display_address):
         response.chain_code.hex()
         == "593213670d5a15f2ea57f9e5958c7bca5a7cce4b6c191d1aeba7b7c515a3c539"
     )
-
-
-enable_apdu_log()
 
 
 @pytest.mark.parametrize("display_address", (True, False))
