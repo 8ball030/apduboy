@@ -1,0 +1,58 @@
+import os
+
+import pytest
+from ledgerwallet.utils import serialize
+
+
+@pytest.fixture()
+def bitcoin_app():
+    return BitcoinApp()
+
+
+@pytest.fixture()
+def bitcoin_test_app():
+    return BitcoinTestApp()
+
+
+class BitcoinApp:
+    cla = 0xE0
+
+    cassette = {
+        "e016000000": "000000050107426974636f696e034254439000",  # get_coin_version()
+        "e0c0000000": os.urandom(248).hex(),  # get_random()
+    }
+
+    def apdu_exchange(self, ins, data, p1, p2) -> bytes:
+        apdu = bytes([self.cla, ins, p1, p2])
+        apdu += serialize(data)
+        return bytes.fromhex(self.cassette[apdu.hex()])
+
+
+class BitcoinTestApp:
+    cla = 0xE0
+
+    cassette = {
+        # get_coin_version()
+        "e016000000": "006f00c40107426974636f696e04544553549000",
+        # get_random()
+        "e0c0000000": os.urandom(248).hex(),
+        # get_wallet_public_key(display_address=True scheme=P2PKH)(path=m/44'/1'/7'/0/777)
+        "e040010015058000002c80000001800000070000000000000309": "4104c8021771fc9dd53da490cee6b7b54f6fb8beb3e7b1eee5a2dbd2d8c60ad832fc0210f91bc6873896740a6fafdc7a2bcb1380e515734e6de8a4972e56440addf6226d7748527a575a5355536176316f706d42706e6f6d37774b50526a47433871575943593213670d5a15f2ea57f9e5958c7bca5a7cce4b6c191d1aeba7b7c515a3c5399000",
+        # get_wallet_public_key(display_address=False scheme=P2PKH)(path=m/44'/1'/7'/0/777)
+        "e040000015058000002c80000001800000070000000000000309": "4104c8021771fc9dd53da490cee6b7b54f6fb8beb3e7b1eee5a2dbd2d8c60ad832fc0210f91bc6873896740a6fafdc7a2bcb1380e515734e6de8a4972e56440addf6226d7748527a575a5355536176316f706d42706e6f6d37774b50526a47433871575943593213670d5a15f2ea57f9e5958c7bca5a7cce4b6c191d1aeba7b7c515a3c5399000",
+        # get_wallet_public_key(display_address=False scheme=P2SH_P2WPKH)(path=m/49'/1'/7'/0/777)
+        "e040000115058000003180000001800000070000000000000309": "410485eef1aa16f53c383f13ba5f41d71d90b44d0e4665c9ba395e606a0886d741d46da346c52482f87744411de26c50652321f1cd0de4350f30ce9232a906de530823324e426a4251656b44766f51754c36627166465267757357584d584135757a664770394cfcf5a463ac7daf49e5baa98c614e3c09068a7d1f6da3d6a3c2088c4de644309000",
+        # get_wallet_public_key(display_address=True scheme=P2SH_P2WPKH)(path=m/49'/1'/7'/0/777)
+        "e040010115058000003180000001800000070000000000000309": "410485eef1aa16f53c383f13ba5f41d71d90b44d0e4665c9ba395e606a0886d741d46da346c52482f87744411de26c50652321f1cd0de4350f30ce9232a906de530823324e426a4251656b44766f51754c36627166465267757357584d584135757a664770394cfcf5a463ac7daf49e5baa98c614e3c09068a7d1f6da3d6a3c2088c4de644309000",
+        # get_wallet_public_key(display_address=True scheme=P2WPKH)(path=m/84'/1'/7'/0/777)
+        "e040010215058000005480000001800000070000000000000309": "4104098039e2b4fd5b0f9875eacbe3b60a241ec504b42b93ade7f51a6f2b5a871ebff334a3de29825d23ba893da71d9f5dbf15c8e0cfc498c9d2fcaac9dfc237f4fb2a7462317173306e666a35766d3636616b367070386a6333337266346a6c77796b367165787835666e6466f8568410d2b75789c405f1a376641fe1088c4ac83acb46ab25f0f80e46cfb2529000",
+        # get_wallet_public_key(display_address=False scheme=P2WPKH)(path=m/84'/1'/7'/0/777)
+        "e040000215058000005480000001800000070000000000000309": "4104098039e2b4fd5b0f9875eacbe3b60a241ec504b42b93ade7f51a6f2b5a871ebff334a3de29825d23ba893da71d9f5dbf15c8e0cfc498c9d2fcaac9dfc237f4fb2a7462317173306e666a35766d3636616b367070386a6333337266346a6c77796b367165787835666e6466f8568410d2b75789c405f1a376641fe1088c4ac83acb46ab25f0f80e46cfb2529000",
+        # get_wallet_public_key(display_address=False scheme=*)(path=m/84'/1'/7')
+        "e04000000d03800000548000000180000007": "4104c940923a4ee100656ebe410e138a5c2ac4bdd8c1f0373c6e0b88e098b24a2bcc0bde921db41b706bdf1ab344f106b9d082d425a33aa3572f7f1216557b327de1226d74676a716f385963626b6877784253737a5938654a585672346a4a5938774b4165ed8692b2a96463c1a456656fa74879226b4d313118a88ee4998e9a7cc2fc0b4a9000",
+    }
+
+    def apdu_exchange(self, ins, data, p1, p2) -> bytes:
+        apdu = bytes([self.cla, ins, p1, p2])
+        apdu += serialize(data)
+        return bytes.fromhex(self.cassette[apdu.hex()])
