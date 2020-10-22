@@ -1,7 +1,7 @@
 import pytest
 
-from bitcoin import get_coin_version, get_random, get_wallet_public_key
-from utils import Scheme, h, m
+from bitcoin import Scheme, get_coin_version, get_random, get_wallet_public_key
+from lib.bip32 import h, m
 
 
 def test_get_coin_version_main(bitcoin_app):

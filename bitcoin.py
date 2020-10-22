@@ -1,3 +1,4 @@
+from enum import IntEnum
 from typing import NamedTuple, Optional
 
 from construct import (
@@ -12,7 +13,18 @@ from construct import (
     Struct,
 )
 
-from utils import DerivationPath, LedgerClient, Scheme
+from lib.bip32 import DerivationPath
+from utils import LedgerClient
+
+
+class Scheme(IntEnum):
+    P2PKH = 0x00
+    P2SH_P2WPKH = 0x01
+    P2WPKH = 0x02
+
+    @classmethod
+    def is_member(cls, item: int) -> bool:
+        return item in {each.value for each in cls}
 
 
 def get_random():

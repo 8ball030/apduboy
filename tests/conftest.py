@@ -14,13 +14,14 @@ def bitcoin_test_app():
     return BitcoinTestApp()
 
 
-class BitcoinApp:
-    cla = 0xE0
+@pytest.fixture()
+def ethereum_app():
+    return EthereumApp()
 
-    cassette = {
-        "e016000000": "000000050107426974636f696e034254439000",  # get_coin_version()
-        "e0c0000000": os.urandom(248).hex(),  # get_random()
-    }
+
+class NanoApp:
+    cla = 0xE0
+    cassette = {}
 
     def apdu_exchange(self, ins, data, p1, p2) -> bytes:
         apdu = bytes([self.cla, ins, p1, p2])
@@ -28,9 +29,14 @@ class BitcoinApp:
         return bytes.fromhex(self.cassette[apdu.hex()])
 
 
-class BitcoinTestApp:
-    cla = 0xE0
+class BitcoinApp(NanoApp):
+    cassette = {
+        "e016000000": "000000050107426974636f696e034254439000",  # get_coin_version()
+        "e0c0000000": os.urandom(248).hex(),  # get_random()
+    }
 
+
+class BitcoinTestApp(NanoApp):
     cassette = {
         # get_coin_version()
         "e016000000": "006f00c40107426974636f696e04544553549000",
@@ -52,7 +58,9 @@ class BitcoinTestApp:
         "e04000000d03800000548000000180000007": "4104c940923a4ee100656ebe410e138a5c2ac4bdd8c1f0373c6e0b88e098b24a2bcc0bde921db41b706bdf1ab344f106b9d082d425a33aa3572f7f1216557b327de1226d74676a716f385963626b6877784253737a5938654a585672346a4a5938774b4165ed8692b2a96463c1a456656fa74879226b4d313118a88ee4998e9a7cc2fc0b4a9000",
     }
 
-    def apdu_exchange(self, ins, data, p1, p2) -> bytes:
-        apdu = bytes([self.cla, ins, p1, p2])
-        apdu += serialize(data)
-        return bytes.fromhex(self.cassette[apdu.hex()])
+
+class EthereumApp(NanoApp):
+    cassette = {
+        # sign_transaction()
+        "e004000040058000002c8000003c800003090000000000000000ea80850ba43b740082520894004ec07d2329997267ec62b4166639513386f32e8901bc16d674ec80000080": "1cec227af09eed28f853f9a83792085a15d7a1ec726ed25ad0f25b31b58bd05a776aa425d410b894c99757dfce1c1536700aa543430d667f9f2b49b4b6ae8d40379000"
+    }
