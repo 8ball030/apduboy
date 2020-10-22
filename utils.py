@@ -17,32 +17,39 @@ BIP32_HARDEN_BIT = 0x80000000
 
 
 @dataclass
-class Derivation:
-    _path_list: List["Level"] = field(default_factory=list)
+class DerivationPath:
+    _path_list: List[int] = field(default_factory=list)
 
-    def __truediv__(self, level: "Level") -> "Derivation":
-        return Derivation(self._path_list + [level])
+    def __truediv__(self, level: int) -> "DerivationPath":
+        return DerivationPath(self._path_list + [level])
 
     @property
     def account(self) -> int:
         if self.depth < 3:
             raise ValueError(f"Insufficient HD tree depth: {self.depth}")
-        return self._path_list[2].value
+        return self._path_list[2]
 
     @property
-    def parent(self) -> "Derivation":
-        return Derivation(self._path_list[:-1])
+    def parent(self) -> "DerivationPath":
+        return DerivationPath(self._path_list[:-1])
 
     @property
     def path(self) -> str:
-        return "/".join(str(level) for level in self._path_list)
+        return "/".join(self._serialize_level(level) for level in self._path_list)
+
+    @staticmethod
+    def _serialize_level(level: int) -> str:
+        if level & BIP32_HARDEN_BIT:
+            value = level - BIP32_HARDEN_BIT
+            return f"{value}'"
+        return f"{level}"
 
     @property
     def depth(self) -> int:
         return len(self._path_list)
 
     def to_list(self) -> List[int]:
-        return [level.value for level in self._path_list]
+        return self._path_list
 
     def __repr__(self) -> str:
         return f"m/{self.path}"
@@ -50,25 +57,11 @@ class Derivation:
     __str__ = __repr__
 
 
-@dataclass
-class Level:
-    _value: int
-
-    @property
-    def value(self) -> int:
-        return self._value
-
-    def h(self) -> "Level":
-        return Level(self._value + BIP32_HARDEN_BIT)
-
-    def __str__(self) -> str:
-        if self._value & BIP32_HARDEN_BIT:
-            value = self._value - BIP32_HARDEN_BIT
-            return f"{value}'"
-        return f"{self._value}"
+def h(value: int) -> int:
+    return value + BIP32_HARDEN_BIT
 
 
-m = Derivation()
+m = DerivationPath()
 
 
 class LedgerClient(Protocol):

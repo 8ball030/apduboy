@@ -12,7 +12,7 @@ from construct import (
     Struct,
 )
 
-from utils import Derivation, LedgerClient, Scheme
+from utils import DerivationPath, LedgerClient, Scheme
 
 
 def get_random():
@@ -36,7 +36,7 @@ def get_wallet_public_key(display_address: bool, scheme: Optional[Scheme] = None
     P1 = 0x01 if display_address else 0x00
     P2 = scheme.value if scheme is not None else Scheme.P2PKH
 
-    def f(path: Derivation):
+    def f(path: DerivationPath):
         if display_address and path.depth != 5:
             raise ValueError(
                 f"cannot derive address at BIP-32 path {path}: invalid depth {path.depth}"
