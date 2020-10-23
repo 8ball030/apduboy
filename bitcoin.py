@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import IntEnum
 from typing import NamedTuple, Optional
 
@@ -38,54 +39,59 @@ def get_random():
     return f
 
 
-def get_wallet_public_key(display_address: bool, scheme: Optional[Scheme] = None):
+@dataclass
+class GetWalletPublicKeyOpts:
+    display_address: bool
+    scheme: Optional[Scheme] = None
+
+
+def get_wallet_public_key(path: DerivationPath, opts: GetWalletPublicKeyOpts):
     # TODO: support user-validation token
 
-    if scheme is not None and not Scheme.is_member(scheme):
-        raise ValueError(f"unrecognized Scheme value: {scheme}")
+    if opts.scheme is not None and not Scheme.is_member(opts.scheme):
+        raise ValueError(f"unrecognized Scheme value: {opts.scheme}")
 
     INS = 0x40
-    P1 = 0x01 if display_address else 0x00
-    P2 = scheme.value if scheme is not None else Scheme.P2PKH
+    P1 = 0x01 if opts.display_address else 0x00
+    P2 = opts.scheme.value if opts.scheme is not None else Scheme.P2PKH
 
-    def f(path: DerivationPath):
-        if display_address and path.depth != 5:
-            raise ValueError(
-                f"cannot derive address at BIP-32 path {path}: invalid depth {path.depth}"
-            )
+    if opts.display_address and path.depth != 5:
+        raise ValueError(
+            f"cannot derive address at BIP-32 path {path}: invalid depth {path.depth}"
+        )
 
-        if scheme and path.depth != 5:
-            raise ValueError(
-                f"scheme not expected at BIP-32 path {path}: {scheme.name}"
-            )
+    if opts.scheme is not None and path.depth != 5:
+        raise ValueError(
+            f"scheme not expected at BIP-32 path {path}: {opts.scheme.name}"
+        )
 
-        path_construct = PrefixedArray(Byte, Int32ub)
-        path_apdu = path_construct.build(path.to_list())
+    path_construct = PrefixedArray(Byte, Int32ub)
+    path_apdu = path_construct.build(path.to_list())
 
-        data = path_apdu
+    data = path_apdu
 
-        class DeviceResponse(NamedTuple):
-            public_key: bytes
-            address: str
-            chain_code: bytes
+    class DeviceResponse(NamedTuple):
+        public_key: bytes
+        address: str
+        chain_code: bytes
 
-        def g(client: LedgerClient) -> DeviceResponse:
-            response = client.apdu_exchange(INS, data, P1, P2)
+    def f(client: LedgerClient) -> DeviceResponse:
+        response = client.apdu_exchange(INS, data, P1, P2)
 
-            response_template = Struct(
-                public_key=Prefixed(Int8ub, GreedyBytes),
-                address=PascalString(Int8ub, "ascii"),
-                chain_code=Bytes(32),
-            )
+        response_template = Struct(
+            public_key=Prefixed(Int8ub, GreedyBytes),
+            address=PascalString(Int8ub, "ascii"),
+            chain_code=Bytes(32),
+        )
 
-            parsed_response = response_template.parse(response)
-            return DeviceResponse(
-                public_key=parsed_response.public_key,
-                address=parsed_response.address,
-                chain_code=parsed_response.chain_code,
-            )
+        parsed_response = response_template.parse(response)
+        return DeviceResponse(
+            public_key=parsed_response.public_key,
+            address=parsed_response.address,
+            chain_code=parsed_response.chain_code,
+        )
 
-        return g
+    return f
 
     return f
 

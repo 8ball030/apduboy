@@ -1,5 +1,6 @@
 import pytest
 
+from bitcoin import GetWalletPublicKeyOpts as Opts
 from bitcoin import Scheme, get_coin_version, get_random, get_wallet_public_key
 from lib.bip32 import h, m
 
@@ -36,10 +37,10 @@ def test_get_random(bitcoin_app):
 
 @pytest.mark.parametrize("display_address", (True, False))
 def test_get_wallet_public_key_legacy(bitcoin_test_app, display_address):
-    cmd = get_wallet_public_key(display_address=display_address, scheme=Scheme.P2PKH)(
-        path=m / h(44) / h(1) / h(7) / 0 / 777
-    )
+    opts = Opts(display_address=display_address, scheme=Scheme.P2PKH)
+    path = m / h(44) / h(1) / h(7) / 0 / 777
 
+    cmd = get_wallet_public_key(path=path, opts=opts)
     response = cmd(bitcoin_test_app)
 
     assert response.address == "mwHRzWZSUSav1opmBpnom7wKPRjGC8qWYC"
@@ -55,10 +56,10 @@ def test_get_wallet_public_key_legacy(bitcoin_test_app, display_address):
 
 @pytest.mark.parametrize("display_address", (True, False))
 def test_get_wallet_public_key_segwit(bitcoin_test_app, display_address):
-    cmd = get_wallet_public_key(
-        display_address=display_address, scheme=Scheme.P2SH_P2WPKH
-    )(path=m / h(49) / h(1) / h(7) / 0 / 777)
+    opts = Opts(display_address=display_address, scheme=Scheme.P2SH_P2WPKH)
+    path = m / h(49) / h(1) / h(7) / 0 / 777
 
+    cmd = get_wallet_public_key(path=path, opts=opts)
     response = cmd(bitcoin_test_app)
 
     assert response.address == "2NBjBQekDvoQuL6bqfFRgusWXMXA5uzfGp9"
@@ -74,10 +75,10 @@ def test_get_wallet_public_key_segwit(bitcoin_test_app, display_address):
 
 @pytest.mark.parametrize("display_address", (True, False))
 def test_get_wallet_public_key_native_segwit(bitcoin_test_app, display_address):
-    cmd = get_wallet_public_key(display_address=display_address, scheme=Scheme.P2WPKH)(
-        path=m / h(84) / h(1) / h(7) / 0 / 777
-    )
+    opts = Opts(display_address=display_address, scheme=Scheme.P2WPKH)
+    path = m / h(84) / h(1) / h(7) / 0 / 777
 
+    cmd = get_wallet_public_key(path=path, opts=opts)
     response = cmd(bitcoin_test_app)
 
     assert response.address == "tb1qs0nfj5vm66ak6pp8jc33rf4jlwyk6qexx5fndf"
@@ -92,36 +93,35 @@ def test_get_wallet_public_key_native_segwit(bitcoin_test_app, display_address):
 
 
 def test_get_wallet_public_key_invalid_scheme():
+    opts = Opts(display_address=False, scheme=0xDEADBEEF)
+    path = m / h(84) / h(1) / h(7) / 0 / 777
+
     with pytest.raises(ValueError):
-        get_wallet_public_key(display_address=False, scheme=0xDEADBEEF)(
-            path=m / h(84) / h(1) / h(7) / 0 / 777
-        )
+        get_wallet_public_key(path=path, opts=opts)
 
 
 def test_get_wallet_public_key_invalid_depth():
-    with pytest.raises(ValueError):
-        get_wallet_public_key(display_address=True, scheme=Scheme.P2PKH)(
-            path=m / h(84)  # m/84'  => BIP-32 level 1
-        )
-
+    opts = Opts(display_address=True, scheme=Scheme.P2PKH)
     # m/84'/1'/7'/0/0/0  => BIP-32 level 6
     path = m / h(84) / h(1) / h(7) / 0 / 0 / 0
+
     with pytest.raises(ValueError):
-        get_wallet_public_key(display_address=True, scheme=Scheme.P2PKH)(path=path)
+        get_wallet_public_key(path=path, opts=opts)
 
 
 def test_get_wallet_public_key_unexpected_scheme():
+    opts = Opts(display_address=True, scheme=Scheme.P2PKH)
+    path = m / h(84)  # m/84'  => BIP-32 level 1
+
     with pytest.raises(ValueError):
-        get_wallet_public_key(display_address=True, scheme=Scheme.P2PKH)(
-            path=m / h(84)  # m/84'  => BIP-32 level 1
-        )
+        get_wallet_public_key(path=path, opts=opts)
 
 
 def test_get_wallet_public_key_depth_3(bitcoin_test_app):
-    cmd = get_wallet_public_key(display_address=False, scheme=None)(
-        path=m / h(84) / h(1) / h(7)  # BIP-32 level 3
-    )
+    opts = Opts(display_address=False, scheme=None)
+    path = m / h(84) / h(1) / h(7)  # BIP-32 level 3
 
+    cmd = get_wallet_public_key(path=path, opts=opts)
     response = cmd(bitcoin_test_app)
 
     assert (
