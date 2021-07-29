@@ -93,8 +93,6 @@ def get_wallet_public_key(path: DerivationPath, opts: GetWalletPublicKeyOpts):
 
     return f
 
-    return f
-
 
 def get_coin_version():
     INS = 0x16
