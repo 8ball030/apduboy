@@ -1,7 +1,16 @@
 # apduboy
 APDUs for Humans ™️
 
-apduboy provides a collection of Pythonic stubs that generate APDUs to communicate with the Ledger Nano S hardware wallet.
+apduboy provides a collection of Pythonic stubs that generate APDUs to
+communicate with the Ledger Nano S/X hardware wallet.
+
+## Installing
+
+```sh
+pip install apduboy
+```
+
+## Examples
 
 ### Retrieve Ethereum addresses
 
@@ -9,8 +18,8 @@ apduboy provides a collection of Pythonic stubs that generate APDUs to communica
 from ledgerwallet.client import LedgerClient
 from ledgerwallet.transport import enumerate_devices
 
-from ethereum import GetEthPublicAddressOpts, get_eth_public_address
-from lib.bip32 import h, m
+from apduboy.ethereum import GetEthPublicAddressOpts, get_eth_public_address
+from apduboy.lib.bip32 import h, m
 
 client = LedgerClient(enumerate_devices()[0])
 opts = GetEthPublicAddressOpts(display_address=False, return_chain_code=False)
@@ -29,8 +38,8 @@ for index in range(5):
 from ledgerwallet.client import LedgerClient
 from ledgerwallet.transport import enumerate_devices
 
-from bitcoin import GetWalletPublicKeyOpts, get_wallet_public_key
-from lib.bip32 import h, m
+from apduboy.bitcoin import GetWalletPublicKeyOpts, get_wallet_public_key
+from apduboy.lib.bip32 import h, m
 
 client = LedgerClient(enumerate_devices()[0])
 
@@ -47,7 +56,7 @@ print(f"Address at path {path} => {response.address}")
 from ledgerwallet.client import LedgerClient
 from ledgerwallet.transport import enumerate_devices
 
-from bitcoin import get_random
+from apduboy.bitcoin import get_random
 
 client = LedgerClient(enumerate_devices()[0])
 
