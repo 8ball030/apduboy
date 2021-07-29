@@ -8,7 +8,7 @@ def readme():
 
 setup(
     name="apduboy",
-    version="0.4.0",
+    version="0.5.0",
     url="https://github.com/LedgerHQ/apduboy",
     author="Anirudha Bose",
     author_email="anirudha.bose@alumni.cern",
@@ -26,7 +26,7 @@ setup(
         "test": ["pytest"],
     },
     keywords="ledger apdu nano ethereum bitcoin",
-    package_dir={"": "apduboy"},
+    packages=find_packages(include=["apduboy*"], exclude=["tests*"]),
     include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",
