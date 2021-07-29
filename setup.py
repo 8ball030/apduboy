@@ -5,7 +5,7 @@ setup(
     version="0.1.0",
     url="https://github.com/LedgerHQ/apduboy",
     author="Anirudha Bose",
-    author_email="anirudha.bose@ledger.com",
+    author_email="anirudha.bose@alumni.cern",
     description="APDUs for Humans",
     long_description="",
     long_description_content_type="text/markdown",
