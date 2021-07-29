@@ -8,7 +8,7 @@ def readme():
 
 setup(
     name="apduboy",
-    version="0.3.0",
+    version="0.4.0",
     url="https://github.com/LedgerHQ/apduboy",
     author="Anirudha Bose",
     author_email="anirudha.bose@alumni.cern",
@@ -17,15 +17,16 @@ setup(
     long_description=readme(),
     long_description_content_type="text/markdown",
     install_requires=[
-        "construct>=2.10.0",
+        "construct<=2.10.61",
+        "rlp>=2,<3",
+        "ledgerwallet",
     ],
     extras_require={
-        "ethereum": ["rlp>=2,<3"],
         "dev": ["ipython", "black", "isort"],
         "test": ["pytest"],
     },
     keywords="ledger apdu nano ethereum bitcoin",
-    package_dir = {'': 'apduboy'},
+    package_dir={"": "apduboy"},
     include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",

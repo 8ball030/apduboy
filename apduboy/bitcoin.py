@@ -14,7 +14,7 @@ from construct import (
     Struct,
 )
 
-from .lib.bip32 import DerivationPath
+from .lib.bip32 import Derivation
 from .utils import LedgerClient
 
 
@@ -45,7 +45,7 @@ class GetWalletPublicKeyOpts:
     scheme: Optional[Scheme] = None
 
 
-def get_wallet_public_key(path: DerivationPath, opts: GetWalletPublicKeyOpts):
+def get_wallet_public_key(path: Derivation, opts: GetWalletPublicKeyOpts):
     # TODO: support user-validation token
 
     if opts.scheme is not None and not Scheme.is_member(opts.scheme):

@@ -15,7 +15,7 @@ from construct import (
     Struct,
 )
 
-from .lib.bip32 import DerivationPath
+from .lib.bip32 import Derivation
 from .utils import LedgerClient, chunk
 
 address = rlp.sedes.Binary.fixed_length(20, allow_empty=True)
@@ -36,7 +36,7 @@ class Transaction(rlp.Serializable):
     )
 
 
-def sign_transaction(path: DerivationPath, tx: Transaction):
+def sign_transaction(path: Derivation, tx: Transaction):
     INS = 0x04
     P2 = 0x00
 
@@ -79,7 +79,7 @@ class GetEthPublicAddressOpts:
     return_chain_code: bool = False
 
 
-def get_eth_public_address(path: DerivationPath, opts: GetEthPublicAddressOpts):
+def get_eth_public_address(path: Derivation, opts: GetEthPublicAddressOpts):
     INS = 0x02
     P1 = 0x01 if opts.display_address else 0x00
     P2 = 0x01 if opts.return_chain_code else 0x00
