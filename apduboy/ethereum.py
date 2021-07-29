@@ -15,8 +15,8 @@ from construct import (
     Struct,
 )
 
-from lib.bip32 import DerivationPath
-from utils import LedgerClient, chunk
+from .lib.bip32 import DerivationPath
+from .utils import LedgerClient, chunk
 
 address = rlp.sedes.Binary.fixed_length(20, allow_empty=True)
 

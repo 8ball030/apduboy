@@ -1,8 +1,8 @@
 import pytest
 
-from bitcoin import GetWalletPublicKeyOpts as Opts
-from bitcoin import Scheme, get_coin_version, get_random, get_wallet_public_key
-from lib.bip32 import h, m
+from apduboy.bitcoin import GetWalletPublicKeyOpts as Opts
+from apduboy.bitcoin import Scheme, get_coin_version, get_random, get_wallet_public_key
+from apduboy.lib.bip32 import h, m
 
 
 def test_get_coin_version_main(bitcoin_app):

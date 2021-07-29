@@ -1,5 +1,5 @@
-from ethereum import Ether, GWei, Transaction, sign_transaction
-from lib.bip32 import h, m
+from apduboy.ethereum import Ether, GWei, Transaction, sign_transaction
+from apduboy.lib.bip32 import h, m
 
 
 def test_sign_transaction(ethereum_app):

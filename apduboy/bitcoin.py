@@ -14,8 +14,8 @@ from construct import (
     Struct,
 )
 
-from lib.bip32 import DerivationPath
-from utils import LedgerClient
+from .lib.bip32 import DerivationPath
+from .utils import LedgerClient
 
 
 class Scheme(IntEnum):

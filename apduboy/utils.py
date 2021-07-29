@@ -1,4 +1,3 @@
-from enum import IntEnum
 from itertools import islice
 from typing import Any, List, Protocol
 
