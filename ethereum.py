@@ -1,7 +1,19 @@
-from typing import NamedTuple
+from dataclasses import dataclass
+from typing import NamedTuple, Optional
 
 import rlp
-from construct import Byte, BytesInteger, Int32ub, PrefixedArray, Struct
+from construct import (
+    Byte,
+    Bytes,
+    BytesInteger,
+    GreedyBytes,
+    Int8ub,
+    Int32ub,
+    PascalString,
+    Prefixed,
+    PrefixedArray,
+    Struct,
+)
 
 from lib.bip32 import DerivationPath
 from utils import LedgerClient, chunk
@@ -56,6 +68,49 @@ def sign_transaction(path: DerivationPath, tx: Transaction):
             v=parsed_response.v,
             r=parsed_response.r,
             s=parsed_response.s,
+        )
+
+    return f
+
+
+@dataclass
+class GetEthPublicAddressOpts:
+    display_address: bool
+    return_chain_code: bool = False
+
+
+def get_eth_public_address(path: DerivationPath, opts: GetEthPublicAddressOpts):
+    INS = 0x02
+    P1 = 0x01 if opts.display_address else 0x00
+    P2 = 0x01 if opts.return_chain_code else 0x00
+
+    path_construct = PrefixedArray(Byte, Int32ub)
+    path_apdu = path_construct.build(path.to_list())
+
+    data = path_apdu
+
+    class DeviceResponse(NamedTuple):
+        public_key: bytes
+        address: str
+        chain_code: Optional[bytes]
+
+    def f(client: LedgerClient) -> DeviceResponse:
+        response = client.apdu_exchange(INS, data, P1, P2)
+
+        struct_kwargs = dict(
+            public_key=Prefixed(Int8ub, GreedyBytes),
+            address=PascalString(Int8ub, "ascii"),
+        )
+        if opts.return_chain_code:
+            struct_kwargs["chain_code"] = Bytes(32)
+
+        response_template = Struct(**struct_kwargs)
+
+        parsed_response = response_template.parse(response)
+        return DeviceResponse(
+            public_key=parsed_response.public_key,
+            address=parsed_response.address,
+            chain_code=parsed_response.chain_code if opts.return_chain_code else None,
         )
 
     return f
