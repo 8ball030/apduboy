@@ -17,7 +17,7 @@ setup(
     long_description=readme(),
     long_description_content_type="text/markdown",
     install_requires=[
-        "construct<=2.10.61",
+        "construct>=2.10.61",
         "rlp>=2,<3",
         "ledgerwallet",
     ],
